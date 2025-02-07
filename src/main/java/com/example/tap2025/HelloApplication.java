@@ -1,5 +1,6 @@
 package com.example.tap2025;
 
+import com.example.tap2025.vistas.Calculadora;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -24,33 +25,32 @@ public class HelloApplication extends Application {
 
     void CrearUI(){
         mitCalculadora = new MenuItem("Calculadora");
+        //Se usa un objeto anonimo debido a que no vamos a necesitar que nos regresa nada, solo lo usamos.
+        mitCalculadora.setOnAction(event -> new Calculadora());
         menCompetencia1 = new Menu("Competencia 1");
         menCompetencia1.getItems().addAll(mitCalculadora);
         //No recibe parametros.
         mnbPrincipal = new MenuBar();
         mnbPrincipal.getMenus().addAll(menCompetencia1);
+        vBox = new VBox(mnbPrincipal);
     }
 
     @Override
     public void start(Stage stage) throws IOException {
-        vBox = new VBox();
+        CrearUI();
         stage.setTitle("Hola Mundo de Eventos :)");
         /*Por medio de #new Scene# estoy aplicando lo de un objeto anónimo*/
         stage.setScene(new Scene(vBox));
+        //Es importante para que se muestre la interface.
         stage.show();
         stage.setMaximized(true);
-
 
     }
 
     public static void main(String[] args) {
         launch();
 
-        /*
-        void clickEvent(){
-            System.out.println("Evento desde un metodo :)");
-        }
-         */
+
     }
 }
 
