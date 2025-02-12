@@ -22,19 +22,22 @@ public class Calculadora extends Stage {
     String strTeclas[] = {"7", "8", "9", "*", "4", "5", "6", "/", "1", "2", "3", "+", "=", "0", ".", "-"};
 
     public void CrearUI(){
-        CrearKeyboard();
+        CrearBtnTeclado();
         txtDisplay = new TextField("0");
+        //txtDisplay.setPromptText("Teclea tu operación");
         //Esto es para que ya no pueda escribir en la tipo pantalla.
         txtDisplay.setEditable(false);
         //Alineado hacia la derecha.
         txtDisplay.setAlignment(Pos.BASELINE_RIGHT);
         vBox = new VBox(txtDisplay, gdpTeclado);
         vBox.setSpacing(10);
-        vBox.setPadding(new Insets(10));
+        vBox.setPadding(new Insets(10, 10, 10, 20));
         escena = new Scene(vBox, 200, 200);
     }
 
-    public void CrearKeyboard(){
+    //throws = aventar los errores a donde se manda llamar.
+    //Jerarquía de Excepciones primero cuestiones especificas y después las generales.
+    public void CrearBtnTeclado(){
         arBtnTeclado = new Button[4][4];
         gdpTeclado = new GridPane();
         gdpTeclado.setHgap(5);
@@ -43,11 +46,18 @@ public class Calculadora extends Stage {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 arBtnTeclado[i][j] = new Button(strTeclas[pos]);
+                int finalPos = pos;
+                arBtnTeclado[i][j].setOnAction(event -> EventoTeclado(strTeclas[finalPos]));
                 arBtnTeclado[i][j].setPrefSize(50, 50);
                 gdpTeclado.add(arBtnTeclado[i][j], j, i);
                 pos++;
             }
         }
+    }
+
+    //appendtxt, setText, promtText
+    private void EventoTeclado(String strTecla){
+        txtDisplay.appendText(strTecla);
     }
 
     public Calculadora(){
