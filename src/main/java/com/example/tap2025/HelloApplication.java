@@ -33,18 +33,20 @@ public class HelloApplication extends Application {
         mnbPrincipal = new MenuBar();
         mnbPrincipal.getMenus().addAll(menCompetencia1);
         vBox = new VBox(mnbPrincipal);
+        escena = new Scene(vBox);
+        escena.getStylesheets().add(getClass().getResource("/styles/main.css").toString());
     }
 
     @Override
     public void start(Stage stage) throws IOException {
         CrearUI();
         stage.setTitle("Hola Mundo de Eventos :)");
+        stage.setScene(escena);
         /*Por medio de #new Scene# estoy aplicando lo de un objeto anónimo*/
-        stage.setScene(new Scene(vBox));
+        //stage.setScene(new Scene(vBox));
         //Es importante para que se muestre la interface.
         stage.show();
         stage.setMaximized(true);
-
     }
 
     public static void main(String[] args) {

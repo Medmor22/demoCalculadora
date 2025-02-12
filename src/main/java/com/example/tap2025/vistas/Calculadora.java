@@ -33,6 +33,9 @@ public class Calculadora extends Stage {
         vBox.setSpacing(10);
         vBox.setPadding(new Insets(10, 10, 10, 20));
         escena = new Scene(vBox, 200, 200);
+        //El URI es un identificador especifico, es decir, identifica un recurso.
+        //Pero estamos usando una URL, que indica la ubicación de un recurso en internet.
+        escena.getStylesheets().add(getClass().getResource("/styles/calcu.css").toString());
     }
 
     //throws = aventar los errores a donde se manda llamar.
@@ -46,6 +49,11 @@ public class Calculadora extends Stage {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 arBtnTeclado[i][j] = new Button(strTeclas[pos]);
+                if(strTeclas[pos].equals("*"))
+                    arBtnTeclado[i][j].setId("fontBotton");
+                //asignación directa.
+                // arBtnTeclado[i][j].setStyle("-fx-background-color: rgba(0,0,0,0.5);");
+
                 int finalPos = pos;
                 arBtnTeclado[i][j].setOnAction(event -> EventoTeclado(strTeclas[finalPos]));
                 arBtnTeclado[i][j].setPrefSize(50, 50);
