@@ -1,6 +1,7 @@
 package com.example.tap2025;
 
 import com.example.tap2025.vistas.Calculadora;
+import com.example.tap2025.vistas.VentasRestaurante;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -19,16 +20,18 @@ public class HelloApplication extends Application {
     private VBox vBox;
     private MenuBar mnbPrincipal;
     private Menu menCompetencia1, menCompetencia2;
-    private MenuItem mitCalculadora;
-
+    private MenuItem mitCalculadora, mitRestaurante;
+    private Scene scene;
     private Scene escena;
 
     void CrearUI(){
         mitCalculadora = new MenuItem("Calculadora");
         //Se usa un objeto anonimo debido a que no vamos a necesitar que nos regresa nada, solo lo usamos.
         mitCalculadora.setOnAction(event -> new Calculadora());
+        mitRestaurante = new MenuItem("Restaurante");
+        mitRestaurante.setOnAction(event -> new VentasRestaurante());
         menCompetencia1 = new Menu("Competencia 1");
-        menCompetencia1.getItems().addAll(mitCalculadora);
+        menCompetencia1.getItems().addAll(mitCalculadora, mitRestaurante);
         //No recibe parametros.
         mnbPrincipal = new MenuBar();
         mnbPrincipal.getMenus().addAll(menCompetencia1);
