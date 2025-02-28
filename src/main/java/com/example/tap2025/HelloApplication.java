@@ -2,6 +2,7 @@ package com.example.tap2025;
 
 import com.example.tap2025.modelos.conexion;
 import com.example.tap2025.vistas.Calculadora;
+import com.example.tap2025.vistas.ListaClientes;
 import com.example.tap2025.vistas.VentasRestaurante;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -30,7 +31,8 @@ public class HelloApplication extends Application {
         //Se usa un objeto anonimo debido a que no vamos a necesitar que nos regresa nada, solo lo usamos.
         mitCalculadora.setOnAction(event -> new Calculadora());
         mitRestaurante = new MenuItem("Restaurante");
-        mitRestaurante.setOnAction(event -> new VentasRestaurante());
+        //mitRestaurante.setOnAction(event -> new VentasRestaurante());
+        mitRestaurante.setOnAction(event -> new ListaClientes());
         menCompetencia1 = new Menu("Competencia 1");
         menCompetencia1.getItems().addAll(mitCalculadora, mitRestaurante);
         //No recibe parametros.
