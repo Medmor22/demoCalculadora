@@ -3,6 +3,7 @@ package com.example.tap2025;
 import com.example.tap2025.modelos.conexion;
 import com.example.tap2025.vistas.Calculadora;
 import com.example.tap2025.vistas.ListaClientes;
+import com.example.tap2025.vistas.Rompecabezas;
 import com.example.tap2025.vistas.VentasRestaurante;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +23,7 @@ public class HelloApplication extends Application {
     private VBox vBox;
     private MenuBar mnbPrincipal;
     private Menu menCompetencia1, menCompetencia2;
-    private MenuItem mitCalculadora, mitRestaurante;
+    private MenuItem mitCalculadora, mitRestaurante, mitRompecabezas;
     private Scene scene;
     private Scene escena;
 
@@ -34,7 +35,10 @@ public class HelloApplication extends Application {
         //mitRestaurante.setOnAction(event -> new VentasRestaurante());
         mitRestaurante.setOnAction(event -> new ListaClientes());
         menCompetencia1 = new Menu("Competencia 1");
-        menCompetencia1.getItems().addAll(mitCalculadora, mitRestaurante);
+        mitRompecabezas = new MenuItem("Rompecabezas");
+        mitRompecabezas.setOnAction(event -> new Rompecabezas());
+        menCompetencia1.getItems().addAll(mitCalculadora, mitRestaurante, mitRompecabezas);
+
         //No recibe parametros.
         mnbPrincipal = new MenuBar();
         mnbPrincipal.getMenus().addAll(menCompetencia1);
