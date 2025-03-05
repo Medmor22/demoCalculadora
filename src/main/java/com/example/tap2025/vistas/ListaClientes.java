@@ -27,6 +27,7 @@ public class ListaClientes extends Stage {
     }
 
     private void CrearUI() {
+        tbvClientes = new TableView<>();
         btnAgregar = new Button(); //agrega una imagen, iconfinder
         //btnAgregar.setGraphic(new ImageView(getClass().getResource("/images/agregar.png").toString()));
         ImageView imv = new ImageView(getClass().getResource("/images/211872_person_add_icon.png").toString());
@@ -37,7 +38,7 @@ public class ListaClientes extends Stage {
         * */
         btnAgregar.setGraphic(imv);
         tblMenu = new ToolBar(btnAgregar);
-        tbvClientes = new TableView<>();
+
         CreateTable();
 
         vBox = new VBox(tblMenu, tbvClientes);

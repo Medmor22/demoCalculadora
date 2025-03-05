@@ -14,7 +14,6 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 
 public class Rompecabezas {
     private Stage stageRomp;
@@ -40,7 +39,7 @@ public class Rompecabezas {
 
     private void imagenesRomp(){
         piezasRomp = new ArrayList<>();
-        String baseRomp = "/images/RompLiloStitch/";
+        String baseRomp = "/images/rompLiloStitch/";
         for (int i = 1; i <= 9; i++) {
             Image imgLiloStitch = new Image(getClass().getResourceAsStream(baseRomp + "pieza" + i + ".png"));
             ImageView imgView = new ImageView(imgLiloStitch);
