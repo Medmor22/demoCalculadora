@@ -39,20 +39,21 @@ public class Rompecabezas {
         lblTiempo = new Label("Tiempo: 0 segundos");
         tiempoInicio = new AtomicLong(0);
 
-        elegirDimension();
-
         bdpRoot.setTop(lblTiempo);
         bdpRoot.setCenter(grpRomp);
 
         Scene escena = new Scene(bdpRoot, 600, 600);
         stageRomp.setScene(escena);
         stageRomp.show();
+
+        elegirDimension();
     }
 
     private void elegirDimension() {
         Stage stageSeleccion = new Stage();
         VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.CENTER);
+        stageSeleccion.setTitle("Dimensiones");
         Label lbl = new Label("Elegir tamaño del rompecabezas: ");
         Button btn3x3 = new Button("3x3");
         Button btn4x4 = new Button("4x4");
@@ -70,8 +71,8 @@ public class Rompecabezas {
 
     private void comenzarJuego(int tam, Stage stageSeleccion, String baseRomp) {
         dimension = tam;
-        stageSeleccion.close();
-        imagenesRomp(baseRomp);
+        stageSeleccion.close(); //cierra la ventana de selección
+        imagenesRomp(baseRomp); //para cargar las piezas
         empezarTemporizador();
     }
 
@@ -83,25 +84,25 @@ public class Rompecabezas {
             ImageView imgView = new ImageView(img);
             imgView.setFitWidth(600 / dimension);
             imgView.setFitHeight(600 / dimension);
-            imgView.setUserData("pieza" + i);
+            imgView.setUserData("pieza" + i); //identificación de cada pieza
             imgView.setOnMouseClicked(event -> seleccionarPieza(imgView));
             piezasRomp.add(imgView);
         }
 
-        Collections.shuffle(piezasRomp);
-        actualizarGridPane();
+        Collections.shuffle(piezasRomp); //para mezclar las piezas
+        actualizarGridPane(); //actualizar el grid y mostrarlas en la pantalla
     }
 
     private void seleccionarPieza(ImageView pieza) {
         if (piezaSeleccionada == null) {
             piezaSeleccionada = pieza;
-            piezaSeleccionada.setStyle("-fx-effect: dropshadow(gaussian, red, 10, 0.5, 0, 0);");
+            piezaSeleccionada.setStyle("-fx-effect: dropshadow(gaussian, red, 10, 0.5, 0, 0);"); //efecto de tipo marco
         } else {
             if (piezaSeleccionada != pieza){
                 intercambiarPiezas(piezaSeleccionada, pieza);
             }
             piezaSeleccionada.setStyle("");
-            piezaSeleccionada = null;
+            piezaSeleccionada = null; //limpia la selección
         }
     }
 

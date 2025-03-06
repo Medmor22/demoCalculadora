@@ -2,3 +2,6 @@ Tiempo: 22 segundos
 Tiempo: 23 segundos
 Tiempo: 31 segundos
 Tiempo: 75 segundos
+Tiempo: 34 segundos
+Tiempo: 22 segundos
+Tiempo: 54 segundos
