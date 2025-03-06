@@ -1,15 +1,14 @@
 package com.example.tap2025.vistas;
 
+import com.example.tap2025.componentes.ButtonCell;
 import com.example.tap2025.modelos.ClientesDAO;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 public class ListaClientes extends Stage {
 
@@ -29,6 +28,7 @@ public class ListaClientes extends Stage {
     private void CrearUI() {
         tbvClientes = new TableView<>();
         btnAgregar = new Button(); //agrega una imagen, iconfinder
+        btnAgregar.setOnAction(event -> new Cliente(tbvClientes));
         //btnAgregar.setGraphic(new ImageView(getClass().getResource("/images/agregar.png").toString()));
         ImageView imv = new ImageView(getClass().getResource("/images/211872_person_add_icon.png").toString());
         /*
@@ -60,7 +60,24 @@ public class ListaClientes extends Stage {
         TableColumn<ClientesDAO,String> tbcEmail = new TableColumn<>("Email");
         tbcEmail.setCellValueFactory(new PropertyValueFactory<>("emailCte"));
 
-        tbvClientes.getColumns().addAll(tbcNomCte,tbcDireccion,tbcTelefono,tbcEmail);
+        //tbvClientes.getColumns().addAll(tbcNomCte,tbcDireccion,tbcTelefono,tbcEmail);
+        TableColumn<ClientesDAO, String> tbcEditar = new TableColumn<>("Editar");
+        tbcEditar.setCellFactory(new Callback<TableColumn<ClientesDAO, String>, TableCell<ClientesDAO, String>>() {
+            @Override
+            public TableCell<ClientesDAO, String> call(TableColumn<ClientesDAO, String> param) {
+                return new ButtonCell("Editar");
+            }
+        });
+
+        TableColumn<ClientesDAO, String> tbcEliminar = new TableColumn<>("Eliminar");
+        tbcEliminar.setCellFactory(new Callback<TableColumn<ClientesDAO, String>, TableCell<ClientesDAO, String>>() {
+            @Override
+            public TableCell<ClientesDAO, String> call(TableColumn<ClientesDAO, String> param) {
+                return new ButtonCell("Eliminar");
+            }
+        });
+
+        tbvClientes.getColumns().addAll(tbcNomCte, tbcDireccion, tbcTelefono, tbcEmail, tbcEditar, tbcEliminar);
         tbvClientes.setItems(objC.SELECT());
     }
 

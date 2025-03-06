@@ -5,3 +5,10 @@ Tiempo: 75 segundos
 Tiempo: 34 segundos
 Tiempo: 22 segundos
 Tiempo: 54 segundos
+Tiempo: 43 segundos
+Tiempo: 58 segundos
+Tiempo: 44 segundos
+Tiempo: 110 segundos
+Tiempo: 39 segundos
+Tiempo: 100 segundos
+Tiempo: 124 segundos
