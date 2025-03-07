@@ -95,7 +95,7 @@ public class Rompecabezas extends Stage {
     private void seleccionarPieza(ImageView pieza) {
         if (piezaSeleccionada == null) {
             piezaSeleccionada = pieza;
-            piezaSeleccionada.setStyle("-fx-effect: dropshadow(gaussian, red, 10, 0.5, 0, 0);");
+            piezaSeleccionada.setStyle("-fx-effect: dropshadow(gaussian, #0e28ab, 10, 0.5, 0, 0);");
         } else {
             if (piezaSeleccionada != pieza) {
                 intercambiarPiezas(piezaSeleccionada, pieza);
