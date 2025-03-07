@@ -7,5 +7,6 @@ module com.example.demo {
     exports com.example.demo;
     requires mysql.connector.j;
     requires java.sql;
+    opens com.example.demo.modelos;
 
 }
