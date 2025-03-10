@@ -20,7 +20,7 @@ public class ListaClientes extends Stage {
 
     public ListaClientes() {
         CrearUI();
-        this.setTitle("Lista de Clientes");
+        this.setTitle("Listado de Clientes :)");
         this.setScene(escena);
         this.show();
     }
@@ -28,7 +28,8 @@ public class ListaClientes extends Stage {
     private void CrearUI() {
         tbvClientes = new TableView<>();
         btnAgregar = new Button(); //agrega una imagen, iconfinder
-        btnAgregar.setOnAction(event -> new Cliente(tbvClientes));
+        //si es una inserción se tiene que mandar un parámetro null
+        btnAgregar.setOnAction(event -> new Cliente(tbvClientes, null));
         //btnAgregar.setGraphic(new ImageView(getClass().getResource("/images/agregar.png").toString()));
         ImageView imv = new ImageView(getClass().getResource("/images/211872_person_add_icon.png").toString());
         /*
@@ -80,6 +81,4 @@ public class ListaClientes extends Stage {
         tbvClientes.getColumns().addAll(tbcNomCte, tbcDireccion, tbcTelefono, tbcEmail, tbcEditar, tbcEliminar);
         tbvClientes.setItems(objC.SELECT());
     }
-
-
 }

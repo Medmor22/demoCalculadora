@@ -17,10 +17,22 @@ public class Cliente extends Stage {
     private ClientesDAO objC;
     private TableView<ClientesDAO> tbvClientes;
 
-    public Cliente(TableView<ClientesDAO> tbvCte){
+    public Cliente(TableView<ClientesDAO> tbvCte, ClientesDAO obj){
         this.tbvClientes = tbvCte;
-        objC = new ClientesDAO();
         CrearUI();
+        //reestructura de la línea de abajo (después de la condición).
+        if(obj == null){
+            new ClientesDAO();
+        } else {
+            //este objeto tiene todos los atributos.
+            objC = obj;
+            txtNomCte.setText(objC.getNomCte());
+            txtDireccion.setText(objC.getDireccion());
+            txtEmail.setText(objC.getEmailCte());
+            txtTelCte.setText(objC.getTelCte());
+        }
+        //si el objeto es null, es una inserción.
+        //objC = obj == null ? new ClientesDAO() : obj;
         this.setTitle("Registrar Cliente");
         this.setScene(escena);
         this.show();
@@ -37,7 +49,11 @@ public class Cliente extends Stage {
             objC.setDireccion(txtDireccion.getText());
             objC.setTelCte(txtTelCte.getText());
             objC.setEmailCte(txtEmail.getText());
-            objC.INSERT();
+            if (objC.getIdCte() > 0){
+                objC.UPDATE();
+            } else {
+                objC.INSERT();
+            }
             tbvClientes.setItems(objC.SELECT());
             tbvClientes.refresh();
             this.close();
