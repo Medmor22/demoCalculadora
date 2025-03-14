@@ -1,10 +1,8 @@
 package com.example.tap2025;
 
+import com.example.tap2025.componentes.Hilo;
 import com.example.tap2025.modelos.conexion;
-import com.example.tap2025.vistas.Calculadora;
-import com.example.tap2025.vistas.ListaClientes;
-import com.example.tap2025.vistas.Rompecabezas;
-import com.example.tap2025.vistas.VentasRestaurante;
+import com.example.tap2025.vistas.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -23,8 +21,7 @@ public class HelloApplication extends Application {
     private VBox vBox;
     private MenuBar mnbPrincipal;
     private Menu menCompetencia1, menCompetencia2;
-    private MenuItem mitCalculadora, mitRestaurante, mitRompecabezas;
-    private Scene scene;
+    private MenuItem mitCalculadora, mitRestaurante, mitRompecabezas, mitHilos;
     private Scene escena;
 
     void CrearUI(){
@@ -38,10 +35,14 @@ public class HelloApplication extends Application {
         mitRompecabezas = new MenuItem("Rompecabezas");
         mitRompecabezas.setOnAction(event -> new Rompecabezas());
         menCompetencia1.getItems().addAll(mitCalculadora, mitRestaurante, mitRompecabezas);
+        menCompetencia2 = new Menu("Competencia 2");
+        mitHilos = new MenuItem("Celayork");
+        mitHilos.setOnAction(event -> new Celayork());
+        menCompetencia2.getItems().addAll(mitHilos);
 
         //No recibe parametros.
         mnbPrincipal = new MenuBar();
-        mnbPrincipal.getMenus().addAll(menCompetencia1);
+        mnbPrincipal.getMenus().addAll(menCompetencia1, menCompetencia2);
         vBox = new VBox(mnbPrincipal);
         escena = new Scene(vBox);
         escena.getStylesheets().add(getClass().getResource("/styles/main.css").toString());
@@ -49,6 +50,14 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+
+        //los hilos van a segundo plano, por eso va antes de la conexión
+//        new Hilo("Ruta Pinos").start();
+//        new Hilo("Ruta Laureles").start();
+//        new Hilo("Ruta San Juan de la Vega").start();
+//        new Hilo("Ruta Monte Blanco").start();
+//        new Hilo("Ruta Tenería").start();
+
         conexion.createConnection();
         CrearUI();
         stage.setTitle("Hola Mundo de Eventos :)");
