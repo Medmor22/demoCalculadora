@@ -67,21 +67,21 @@ public class Calculadora extends Stage {
     }
 
     //appendtxt, setText, promtText
-    private void EventoTeclado(String strTecla){
-        if (strTecla.equals("C")){
+    private void EventoTeclado(String strTecla) {
+        if (strTecla.equals("C")) {
             txtDisplay.setText("0");
             op = "";
             return;
         }
 
-        if(strTecla.equals("=")){
-            if(validacionOp(op)){
+        if (strTecla.equals("=")) {
+            if (validacionOp(op)) {
                 double resultado = evaluarOperador(op);
                 txtDisplay.setText(Double.isInfinite(resultado) ? "Error!: division/0" : String.valueOf(resultado));
-                op = String.valueOf(resultado); //Para poder continuar con otra operacion con el resultado.
+                op = String.valueOf(resultado); // Para continuar con más operaciones usando el resultado.
             } else {
                 txtDisplay.setText("Error!: sintaxis");
-                op = ""; //Se reinicia la operacion en caso de error.
+                op = ""; // Reinicia la operación en caso de error.
             }
             return;
         }
@@ -90,16 +90,23 @@ public class Calculadora extends Stage {
             txtDisplay.setText(strTecla);
             op = strTecla;
         } else {
-            if(validacionEntrada(op, strTecla)) {
+            // Manejo especial para permitir el signo "-" como número negativo.
+            if (strTecla.equals("-") && (op.isEmpty() || "+-*/".contains("" + op.charAt(op.length() - 1)))) {
+                txtDisplay.appendText(strTecla);
+                op += strTecla;
+                return;
+            }
+            // Validación para otros casos.
+            if (validacionEntrada(op, strTecla)) {
                 txtDisplay.appendText(strTecla);
                 op += strTecla;
             }
         }
     }
 
-    //Metodo para validar la operacion y saber que esta correcta antes de evaluarla.
+    //Metodo para validar la operacion y saber que está correcta antes de evaluarla.
     private boolean validacionOp(String op){
-        return op.matches("^[0-9]+(\\.[0-9]+)?([+\\-*/][0-9]+(\\.[0-9]+)?)*$"); //Recuerdalo.
+        return op.matches("^-?[0-9]+(\\.[0-9]+)?([+\\-*/]-?[0-9]+(\\.[0-9]+)?)*$"); //Recuerdalo.
     }
 
     //Metodo para evitar las operaciones consecutivas o mal escritos.
@@ -123,19 +130,30 @@ public class Calculadora extends Stage {
         Stack<Double> numeros = new Stack<>();
         Stack<Character> operadores = new Stack<>();
         StringBuilder numero = new StringBuilder();
+        boolean esNumeroNegativo = true; //Esto permite usar negativos antes y después del operador
 
-        for(char caracter : expresion.toCharArray()){
+        for(int i = 0; i < expresion.length(); i++){
+            char caracter = expresion.charAt(i);
+
             if (Character.isDigit(caracter) || caracter == '.'){
                 numero.append(caracter);
+                esNumeroNegativo = false; //Ya se espera un número negativo.
             } else {
                 if (numero.length() > 0){
                     numeros.push(Double.parseDouble(numero.toString()));
                     numero.setLength(0);
                 }
-                while (!operadores.isEmpty() && propiedades(operadores.peek()) >= propiedades(caracter)){
-                    aplicarOperaciones(numeros, operadores.pop());
+                //Para el uso de números negativos.
+                if (caracter == '-' && (i == 0 || "+-*/".contains("" + expresion.charAt(i - 1)))) {
+                    numero.append(caracter); //para ser parte deñ número y no un operador.
+                } else {
+                    //Procesar operadores con jerarquía.
+                    while (!operadores.isEmpty() && propiedades(operadores.peek()) >= propiedades(caracter)){
+                        aplicarOperaciones(numeros, operadores.pop());
+                    }
+                    operadores.push(caracter);
+                    esNumeroNegativo = true;
                 }
-                operadores.push(caracter);
             }
         }
 

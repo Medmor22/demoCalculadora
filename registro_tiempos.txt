@@ -12,3 +12,6 @@ Tiempo: 110 segundos
 Tiempo: 39 segundos
 Tiempo: 100 segundos
 Tiempo: 124 segundos
+Tiempo: 29 segundos
+Tiempo: 78 segundos
+Tiempo: 125 segundos
