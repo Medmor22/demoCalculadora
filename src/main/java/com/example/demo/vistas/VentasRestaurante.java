@@ -24,4 +24,5 @@ public class VentasRestaurante extends Stage {
         escena.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
     }
 
+
 }

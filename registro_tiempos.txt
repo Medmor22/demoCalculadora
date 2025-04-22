@@ -3,3 +3,6 @@ Tiempo: 41 segundos
 Tiempo: 208 segundos
 Tiempo: 149 segundos
 Tiempo: 79 segundos
+Tiempo: 51 segundos
+Tiempo: 51 segundos
+Tiempo: 179 segundos

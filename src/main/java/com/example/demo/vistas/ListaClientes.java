@@ -30,7 +30,7 @@ public class ListaClientes extends Stage {
     private void CrearUI() {
         tbvClientes = new TableView<>();
         btnAgregar = new Button(); //agrega una imagen, iconfinder
-        btnAgregar.setOnAction(event -> new Cliente(tbvClientes));
+        btnAgregar.setOnAction(event -> new Cliente(tbvClientes,null));
         ImageView imv = new ImageView(getClass().getResource("/images/211872_person_add_icon.png").toString());
         imv.setFitWidth(20);
         imv.setFitHeight(20);
@@ -47,11 +47,11 @@ public class ListaClientes extends Stage {
         TableColumn<ClientesDAO,String> tbcNomCte = new TableColumn<>("Nombre");
         tbcNomCte.setCellValueFactory(new PropertyValueFactory<>("nomCte"));
 
-        TableColumn<ClientesDAO,String> tbcTelefono = new TableColumn<>("Telefono");
-        tbcTelefono.setCellValueFactory(new PropertyValueFactory<>("telCte"));
-
         TableColumn<ClientesDAO,String> tbcDireccion = new TableColumn<>("Dirección");
         tbcDireccion.setCellValueFactory(new PropertyValueFactory<>("direccion"));
+
+        TableColumn<ClientesDAO,String> tbcTelefono = new TableColumn<>("Telefono");
+        tbcTelefono.setCellValueFactory(new PropertyValueFactory<>("telCte"));
 
         TableColumn<ClientesDAO,String> tbcEmail = new TableColumn<>("Email");
         tbcEmail.setCellValueFactory(new PropertyValueFactory<>("emailCte"));
@@ -72,7 +72,7 @@ public class ListaClientes extends Stage {
             }
         });
 
-        tbvClientes.getColumns().addAll(tbcNomCte,tbcDireccion,tbcTelefono,tbcEmail);
+        tbvClientes.getColumns().addAll(tbcNomCte,tbcDireccion,tbcTelefono,tbcEmail,tbcEditar,tbcEliminar);
         tbvClientes.setItems(objC.SELECT());
     }
 

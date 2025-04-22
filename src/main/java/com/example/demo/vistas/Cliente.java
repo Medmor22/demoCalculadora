@@ -17,10 +17,20 @@ public class Cliente extends Stage {
     private ClientesDAO objC;
     private TableView<ClientesDAO> tbvClientes;
 
-    public Cliente(TableView<ClientesDAO> tbvCte){
+    public Cliente(TableView<ClientesDAO> tbvCte, ClientesDAO obj) {
         this.tbvClientes=tbvCte;
-        objC = new ClientesDAO();
         CrearUI();
+        if(obj == null) {
+            new ClientesDAO();
+            objC = new ClientesDAO();
+        }else{
+            objC = obj;
+            txtNomCte.setText(objC.getNomCte());
+            txtDireccion.setText(objC.getDireccion());
+            txtEmail.setText(objC.getEmailCte());
+            txtTelCte.setText(objC.getTelCte());
+        }
+        //objC= obj == null ? new ClientesDAO() : obj;
         this.setTitle("Registar Cliente");
         this.setScene(escena);
         this.show();
@@ -33,16 +43,22 @@ public class Cliente extends Stage {
         txtEmail = new TextField();
         btnGuardar = new Button("Guardar");
         btnGuardar.setOnAction(e -> {
+
             objC.setNomCte(txtNomCte.getText());
-            objC.setTelCte(txtTelCte.getText());
             objC.setDireccion(txtDireccion.getText());
+            objC.setTelCte(txtTelCte.getText());
             objC.setEmailCte(txtEmail.getText());
-            objC.INSERT();
+            if(objC.getIdCte()>0){
+                objC.UPDATE();
+            }else{
+                objC.INSERT();
+            }
+
             tbvClientes.setItems(objC.SELECT());
             tbvClientes.refresh();
             this.close();
         });
-        vbox = new VBox(txtNomCte, txtTelCte, txtDireccion, txtEmail, btnGuardar);
+        vbox = new VBox(txtNomCte, txtDireccion, txtTelCte, txtEmail, btnGuardar);
         escena = new Scene(vbox,120,150);
     }
 }
