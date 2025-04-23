@@ -14,3 +14,6 @@ Práctica 4: Base de datos (Restaurante)
 10. Utilizar CSS y Bootstrap para mejorar la presentación de las pantallas.
 11. Agregue una sección para generar reservaciones
 12. Genere la sección para definir los insumos que requiere cada producto
+
+Material de referencia.
+https://i2.wp.com/http2.mlstatic.com/sistema-de-restaurante-software-restaurante-D_NQ_NP_103515-MPE25262220771_012017-F.jpg?classId=e17051ac-5217-4492-9a3f-84274e9bd9fe&assignmentId=ddfb9994-aaeb-41bb-b360-5f4e84d153dd&submissionId=8bcaec42-7515-9d92-b003-b5d6d8d506e4
