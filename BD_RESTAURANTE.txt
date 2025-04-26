@@ -1,0 +1,133 @@
+---------RESTAURANTE--------
+
+CREATE TABLE clientes (
+	id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+	nombre_cliente VARCHAR(100) NOT NULL,
+	telefono_cliente VARCHAR(15),
+	direccion VARCHAR(100),
+	email_cliente VARCHAR(50) UNIQUE
+);
+
+CREATE TABLE empleados (
+	id_empleado INT AUTO_INCREMENT PRIMARY KEY,
+	nombre VARCHAR(100) NOT NULL,
+	apellido_paterno VARCHAR(50),
+	apellido_materno VARCHAR(50),
+	curp CHAR(18) UNIQUE,
+	rfc CHAR(13) UNIQUE,
+	sueldo DECIMAL(10,2),
+	id_puesto INT,
+	celular VARCHAR(15),
+	nss CHAR(11),
+	horario VARCHAR(50),
+	fecha_ingreso DATE,
+	FOREIGN KEY (id_puesto) REFERENCES puestos(id_puesto)
+);
+
+CREATE TABLE puestos (
+	id_puesto INT AUTO_INCREMENT PRIMARY KEY,
+	nombre_puesto VARCHAR(50),
+	descripcion TEXT
+);
+
+CREATE TABLE mesas (
+	id_mesa INT AUTO_INCREMENT PRIMARY KEY,
+	numero_mesa INT UNIQUE,
+	capacidad INT NOT NULL
+);
+
+CREATE TABLE categorias (
+	id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+	nombre_categoria VARCHAR(50),
+	descripcion_categoria TEXT
+);
+
+CREATE TABLE productos (
+	id_producto INT AUTO_INCREMENT PRIMARY KEY,
+	nombre_producto VARCHAR(100),
+	precio DECIMAL(10,2),
+	costo DECIMAL(10,2),
+	id_categoria INT,
+	FOREIGN KEY (id_categoria) REFERENCES categorias(id_categoria)
+);
+
+CREATE TABLE proveedores (
+	id_proveedor INT AUTO_INCREMENT PRIMARY KEY,
+	nombre VARCHAR(100),
+	telefono VARCHAR(15),
+	direccion VARCHAR(100),
+	email VARCHAR(50),
+	nota TEXT
+);
+
+CREATE TABLE insumos (
+	id_insumo INT AUTO_INCREMENT PRIMARY KEY,
+	nombre_insumo VARCHAR(100),
+	cantidad_stock INT,
+	unidad VARCHAR(20), -- ej: kg, litros, piezas
+	id_proveedor INT,
+	FOREIGN KEY (id_proveedor) REFERENCES proveedores(id_proveedor)
+);
+
+------------------------------------------------------------------------
+Producto-Insumo (Muchos a Muchos)
+
+CREATE TABLE producto_insumo (
+	id_producto INT,
+	id_insumo INT,
+	cantidad_utilizada DECIMAL(10,2),
+	PRIMARY KEY (id_producto, id_insumo),
+	FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
+	FOREIGN KEY (id_insumo) REFERENCES insumos(id_insumo)
+);
+--------------------------------------------------------------------------
+
+CREATE TABLE ordenes (
+	id_orden INT AUTO_INCREMENT PRIMARY KEY,
+	id_cliente INT,
+	id_empleado INT,
+	id_mesa INT,
+	fecha DATETIME,
+	total DECIMAL(10,2),
+	FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
+	FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
+	FOREIGN KEY (id_mesa) REFERENCES mesas(id_mesa)
+);
+
+-------------------------------------------------------------------------
+Orden-Producto (Muchos a Muchos)
+
+CREATE TABLE orden_producto (
+	id_orden INT,
+	id_producto INT,
+	cantidad INT,
+	subtotal DECIMAL(10,2),
+	PRIMARY KEY (id_orden, id_producto),
+	FOREIGN KEY (id_orden) REFERENCES ordenes(id_orden),
+	FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
+);
+-------------------------------------------------------------------------
+
+CREATE TABLE reservaciones (
+	id_reservacion INT AUTO_INCREMENT PRIMARY KEY,
+	id_cliente INT,
+	fecha_reserva DATETIME,
+	FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+);
+
+--------------------------------------------------------------------------
+Reservación-Mesa (Muchos a Muchos)
+
+CREATE TABLE reservacion_mesa (
+	id_reservacion INT,
+	id_mesa INT,
+	PRIMARY KEY (id_reservacion, id_mesa),
+	FOREIGN KEY (id_reservacion) REFERENCES reservaciones(id_reservacion),
+	FOREIGN KEY (id_mesa) REFERENCES mesas(id_mesa)
+);
+-----------------------------------------------------------------------------
+
+
+
+
+

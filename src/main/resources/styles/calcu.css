@@ -1,18 +1,21 @@
 .button{
-    -fx-background-color: #db2020;
+    -fx-background-color: #233ad1;
     -fx-text-fill: white;
     -fx-border-color: black;
-    -fx-border-radius: 20;
+    -fx-border-radius: 20; /*esquinas redondeadas*/
     -fx-background-radius: 20;
-    /*-fx-padding: 5, 10, 15, 2;*/
+    /*-fx-padding:60,10,15,60 ;*/
 }
 
 .button:hover{
-    -fx-background-color: #4a7cc9;
+    -fx-background-color: #162a90;
 }
+
 
 #fontButton{
     -fx-font: bold italic "Arial";
-    -fx-background-color: #efe4e4;
+    -fx-background-color: #ede5e5;
     -fx-text-fill: #FF0000;
 }
+
+

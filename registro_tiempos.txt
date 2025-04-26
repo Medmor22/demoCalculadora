@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Tiempo: 22 segundos
 Tiempo: 23 segundos
 Tiempo: 31 segundos
@@ -15,3 +16,13 @@ Tiempo: 124 segundos
 Tiempo: 29 segundos
 Tiempo: 78 segundos
 Tiempo: 125 segundos
+=======
+Tiempo: 30 segundos
+Tiempo: 41 segundos
+Tiempo: 208 segundos
+Tiempo: 149 segundos
+Tiempo: 79 segundos
+Tiempo: 51 segundos
+Tiempo: 51 segundos
+Tiempo: 179 segundos
+>>>>>>> 1a823d7b794fbc71cbe2a0209fc4ceec48afe658
