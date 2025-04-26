@@ -1,7 +1,6 @@
 package com.example.tap2025.vistas;
 
 import com.example.tap2025.modelos.Producto;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,7 +11,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
@@ -37,11 +35,10 @@ public class VentasRestaurante {
 
         mostrarMesas();
 
-        // ComboBox de categorías táctil
+        //Esto es para las partes de la pantalla, lo tactil
         comboBoxCategorias.getItems().addAll(categoriaProductos.keySet());
         comboBoxCategorias.setOnAction(e -> mostrarProductos());
         comboBoxCategorias.setStyle("-fx-font-size: 18px;");
-
         tilePaneProductos.setHgap(10);
         tilePaneProductos.setVgap(10);
         tilePaneProductos.setPrefColumns(4);
@@ -53,7 +50,6 @@ public class VentasRestaurante {
         Button btnGuardar = new Button("Guardar Pedido");
         btnGuardar.setStyle("-fx-font-size: 18px; -fx-background-color: #90CAF9;");
         btnGuardar.setOnAction(e -> guardarPedido());
-
         Button btnLimpiar = new Button("Limpiar Pedido");
         btnLimpiar.setStyle("-fx-font-size: 18px; -fx-background-color: #EF9A9A;");
         btnLimpiar.setOnAction(e -> limpiarPedido());
@@ -82,20 +78,20 @@ public class VentasRestaurante {
             botonMesa.setStyle("-fx-font-size: 16px; -fx-background-color: #A5D6A7;");
             botonMesa.setOnAction(e -> {
                 mesaSeleccionada = numeroMesa;
-                actualizarSeleccionMesas(); // <<--- Nueva función para actualizar colores
+                actualizarSeleccionMesas(); //Así podemos visualizar el cambio de colores.
                 mostrarProductos();
             });
             mesaContainer.getChildren().add(botonMesa);
-            botonesMesas.put(numeroMesa, botonMesa); // <<--- Guardamos en el mapa
+            botonesMesas.put(numeroMesa, botonMesa); //Para guardar en el mapa
         }
     }
 
     private void actualizarSeleccionMesas() {
         for (Map.Entry<Integer, Button> entry : botonesMesas.entrySet()) {
             if (entry.getKey() == mesaSeleccionada) {
-                entry.getValue().setStyle("-fx-font-size: 16px; -fx-background-color: #90CAF9;"); // Azul para la seleccionada
+                entry.getValue().setStyle("-fx-font-size: 16px; -fx-background-color: #90CAF9;");
             } else {
-                entry.getValue().setStyle("-fx-font-size: 16px; -fx-background-color: #A5D6A7;"); // Verde para las demás
+                entry.getValue().setStyle("-fx-font-size: 16px; -fx-background-color: #A5D6A7;");
             }
         }
     }
@@ -111,17 +107,16 @@ public class VentasRestaurante {
             card.setAlignment(Pos.CENTER);
             card.setPadding(new Insets(10));
             card.setStyle("-fx-border-color: gray; -fx-border-radius: 10; -fx-background-color: white;");
-
             ImageView imageView;
             try {
                 imageView = new ImageView(new Image(getClass().getResourceAsStream(producto.getImagen())));
             } catch (Exception e) {
-                imageView = new ImageView(); // Si no se encuentra, muestra vacío
+                imageView = new ImageView(); //Esto es para que cuando no se encuentra, se muestre vacío
             }
-            imageView.setFitWidth(120); // Ancho deseado
-            imageView.setFitHeight(100); // Alto deseado
-            imageView.setPreserveRatio(true); // Mantiene proporción
-            imageView.setSmooth(true); // Mejor calidad
+            imageView.setFitWidth(120);
+            imageView.setFitHeight(100);
+            imageView.setPreserveRatio(true);
+            imageView.setSmooth(true); //Esta es para la calidad.
 
             Label nombre = new Label(producto.getNombre());
             Label precio = new Label("$" + producto.getPrecio());
@@ -184,6 +179,7 @@ public class VentasRestaurante {
         actualizarPedido();
     }
 
+    //El menu lo escribí manualmente, pero podemos modificarlo en lo de administrar productos. Usuario: Javi Contraseña: 1234
     private void inicializarProductos() {
         categoriaProductos.put("Entradas", List.of(
                 new Producto("Alitas", 249, "Entradas", "images/Entradas/Alitas.jpg"),
@@ -304,7 +300,7 @@ public class VentasRestaurante {
                 new Producto("Corona cero", 40, "Cervezas", "/images/Cervezas/CoronaCero.jpg")
         ));
         categoriaProductos.put("Bebidas", List.of(
-                new Producto("Refresco", 37, "Bebidas", "images/Bebidas/Refrescos.jpg"),
+                new Producto("Refresco", 37, "Bebidas", "images/Bebidas/Refresco.jpg"),
                 new Producto("Limonada", 40, "Bebidas", "images/Bebidas/Limonada.png"),
                 new Producto("Naranjada", 40, "Bebidas", "/images/Bebidas/Naranjada.jpg"),
                 new Producto("Limonada", 40, "Bebidas", "/images/Bebidas/Limonada.png"),
