@@ -12,112 +12,144 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
+import java.io.*;
 
 public class CrudProductos {
     private final ObservableList<Producto> productos = FXCollections.observableArrayList();
+    private static final String RUTA_ARCHIVO = "productos.csv";
 
-     public void mostrar (Stage stage){
-         //Secciones.
-         TextField txtFieldNombre = new TextField();
-         TextField txtFieldPrecio = new TextField();
-         ComboBox<String> comboBoxCategoria = new ComboBox<>();
-         comboBoxCategoria.getItems().addAll("Entradas", "Platillos", "Bebidas", "Postres");
-         Button btnImagen = new Button("Elegir Imagen");
-         Label lblImagen = new Label("Sin imagen");
-         Button btnAgregar = new Button("Agregar Producto");
+    public void mostrar(Stage stage) {
+        cargarProductosDesdeArchivo();
 
-         //Tabla.
-         TableView<Producto> tableView = new TableView<>();
-         TableColumn<Producto, String> tblColNombre = new TableColumn<>("Nombre");
-         TableColumn<Producto, Double> tblColPrecio = new TableColumn<>("Precio");
-         TableColumn<Producto, String> tblColCategoria = new TableColumn<>("Categoría");
-         TableColumn<Producto, String> tblColImagen = new TableColumn<>("Imagen");
+        TextField txtFieldNombre = new TextField();
+        TextField txtFieldPrecio = new TextField();
+        ComboBox<String> comboBoxCategoria = new ComboBox<>();
+        comboBoxCategoria.getItems().addAll("Entradas", "Platillos", "Bebidas", "Postres");
+        Button btnImagen = new Button("Elegir Imagen");
+        Label lblImagen = new Label("Sin imagen");
+        Button btnAgregar = new Button("Agregar Producto");
 
-         tblColNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-         tblColPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
-         tblColCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
-         tblColImagen.setCellValueFactory(new PropertyValueFactory<>("imagen"));
+        TableView<Producto> tableView = new TableView<>();
+        TableColumn<Producto, String> tblColNombre = new TableColumn<>("Nombre");
+        TableColumn<Producto, Double> tblColPrecio = new TableColumn<>("Precio");
+        TableColumn<Producto, Integer> tblColCantidad = new TableColumn<>("Cantidad");
+        TableColumn<Producto, String> tblColCategoria = new TableColumn<>("Categoría");
+        TableColumn<Producto, String> tblColImagen = new TableColumn<>("Imagen");
 
-         tableView.getColumns().addAll(tblColNombre, tblColPrecio, tblColCategoria, tblColImagen);
-         tableView.setItems(productos);
+        tblColNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        tblColPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
+        tblColCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
+        tblColCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
+        tblColImagen.setCellValueFactory(new PropertyValueFactory<>("imagen"));
 
-         //Imágenes.
-         btnImagen.setOnAction(event -> {
-             FileChooser fileChooser = new FileChooser();
-             fileChooser.setTitle("Elegir Imagen");
-             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*jpeg"));
-             File fileImagen = fileChooser.showOpenDialog(stage);
-             if (fileImagen != null){
-                 lblImagen.setText(fileImagen.getAbsolutePath());
-             }
-         });
+        tableView.getColumns().addAll(tblColNombre, tblColPrecio, tblColCantidad, tblColCategoria, tblColImagen);
+        tableView.setItems(productos);
 
-         //Agregar datos.
-         btnAgregar.setOnAction(event -> {
-             try{
-                 String nombre = txtFieldNombre.getText();
-                 double precio = Double.parseDouble(txtFieldPrecio.getText());
-                 String categoria = comboBoxCategoria.getValue();
-                 String imagen = lblImagen.getText();
+        btnImagen.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Elegir Imagen");
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg"));
+            File fileImagen = fileChooser.showOpenDialog(stage);
+            if (fileImagen != null) {
+                lblImagen.setText(fileImagen.getAbsolutePath());
+            }
+        });
 
-                 if (nombre.isEmpty() || categoria == null || imagen.equals("Sin imagen")){
-                     throw new IllegalArgumentException("Faltan datos");
-                 }
+        btnAgregar.setOnAction(event -> {
+            try {
+                String nombre = txtFieldNombre.getText();
+                double precio = Double.parseDouble(txtFieldPrecio.getText());
+                String categoria = comboBoxCategoria.getValue();
+                String imagen = lblImagen.getText();
+                if (nombre.isEmpty() || categoria == null || imagen.equals("Sin imagen")) {
+                    throw new IllegalArgumentException("Faltan datos");
+                }
+                productos.add(new Producto(nombre, precio, categoria, imagen));
+                guardarProductosEnArchivo();
+                txtFieldNombre.clear();
+                txtFieldPrecio.clear();
+                comboBoxCategoria.setValue(null);
+                lblImagen.setText("Sin imagen");
+            } catch (Exception e) {
+                Alert alerta = new Alert(Alert.AlertType.ERROR, "Error al agregar producto: " + e.getMessage());
+                alerta.showAndWait();
+            }
+        });
 
-                 productos.add(new Producto(nombre, precio, categoria, imagen));
-                 txtFieldNombre.clear();
-                 txtFieldPrecio.clear();
-                 comboBoxCategoria.setValue(null);
-                 lblImagen.setText("Sin imagen");
-             } catch (Exception e) {
-                 Alert alerta = new Alert(Alert.AlertType.ERROR, "Error al agregar producto: " + e.getMessage());
-                 alerta.showAndWait();
-             }
-         });
+        Button btnEditar = new Button("Editar");
+        Button btnEliminar = new Button("Eliminar");
 
-         //Editar y eliminar.
-         Button btnEditar = new Button("Editar");
-         Button btnEliminar = new Button("Eliminar");
+        btnEditar.setOnAction(event -> {
+            Producto elegido = tableView.getSelectionModel().getSelectedItem();
+            if (elegido != null) {
+                txtFieldNombre.setText(elegido.getNombre());
+                txtFieldPrecio.setText(String.valueOf(elegido.getPrecio()));
+                comboBoxCategoria.setValue(elegido.getCategoria());
+                lblImagen.setText(elegido.getImagen());
+                productos.remove(elegido);
+                guardarProductosEnArchivo();
+            }
+        });
 
-         btnEditar.setOnAction(event -> {
-             Producto elegido = tableView.getSelectionModel().getSelectedItem();
-             if(elegido != null){
-                 txtFieldNombre.setText(elegido.getNombre());
-                 txtFieldPrecio.setText(String.valueOf(elegido.getPrecio()));
-                 comboBoxCategoria.setValue(elegido.getCategoria());
-                 lblImagen.setText(elegido.getImagen());
-                 productos.remove(elegido);
-             }
-         });
+        btnEliminar.setOnAction(event -> {
+            Producto elegido = tableView.getSelectionModel().getSelectedItem();
+            if (elegido != null) {
+                productos.remove(elegido);
+                guardarProductosEnArchivo();
+            }
+        });
 
-         btnEliminar.setOnAction(event -> {
-             Producto elegido = tableView.getSelectionModel().getSelectedItem();
-             if (elegido != null) {
-                 productos.remove(elegido);
-             }
-         });
+        VBox vBoxContenido = new VBox(10,
+                new Label("Nombre"), txtFieldNombre,
+                new Label("Precio"), txtFieldPrecio,
+                new Label("Categoría"), comboBoxCategoria,
+                btnImagen, lblImagen,
+                btnAgregar, btnEditar, btnEliminar
+        );
+        vBoxContenido.setPadding(new Insets(10));
 
-         //Layout.
-         VBox vBoxContenido = new VBox(10,
-                 new Label("Nombre"), txtFieldNombre,
-                 new Label("Precio"), txtFieldPrecio,
-                 new Label("Categoría"), comboBoxCategoria,
-                 btnImagen, lblImagen,
-                 btnAgregar, btnEditar, btnEliminar
-         );
+        VBox vBoxTabla = new VBox(tableView);
+        vBoxTabla.setPadding(new Insets(10));
 
-         vBoxContenido.setPadding(new Insets(10));
+        HBox root = new HBox(20, vBoxContenido, vBoxTabla);
+        root.setPadding(new Insets(15));
 
-         VBox vBoxTabla = new VBox(tableView);
-         vBoxTabla.setPadding(new Insets(10));
+        Scene escena = new Scene(root, 1000, 400);
+        stage.setScene(escena);
+        stage.setTitle("Gestionar Productos");
+        stage.show();
+    }
 
-         HBox root = new HBox(20, vBoxContenido, vBoxTabla);
-         root.setPadding(new Insets(15));
+    private void guardarProductosEnArchivo() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(RUTA_ARCHIVO))) {
+            for (Producto p : productos) {
+                writer.println(p.getNombre() + "," + p.getPrecio() + "," + p.getCantidad() + "," + p.getCategoria() + "," + p.getImagen());
+            }
+        } catch (IOException e) {
+            System.err.println("Error al guardar productos: " + e.getMessage());
+        }
+    }
 
-         Scene escena = new Scene(root, 900, 400);
-         stage.setScene(escena);
-         stage.setTitle("Gestionar Productos");
-         stage.show();
-     }
+    private void cargarProductosDesdeArchivo() {
+        productos.clear();
+        File archivo = new File(RUTA_ARCHIVO);
+        if (!archivo.exists()) return;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] datos = linea.split(",", -1);
+                if (datos.length == 5) {
+                    String nombre = datos[0];
+                    double precio = Double.parseDouble(datos[1]);
+                    int cantidad = Integer.parseInt(datos[2]);
+                    String categoria = datos[3];
+                    String imagen = datos[4];
+                    productos.add(new Producto(nombre, precio, cantidad, categoria, imagen));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error al leer productos: " + e.getMessage());
+        }
+    }
 }

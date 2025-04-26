@@ -1,5 +1,7 @@
 package com.example.tap2025.modelos;
 
+import java.util.Objects;
+
 public class Producto {
     private String nombre;
     private double precio;
@@ -7,9 +9,19 @@ public class Producto {
     private String categoria;
     private String imagen;
 
-    public Producto(String nombre, double precio, String imagen) {
+    public Producto(String nombre, double precio, String categoria, String imagen) {
         this.nombre = nombre;
-        this.precio = precio;
+        this.precio = Math.max(0, precio);
+        this.categoria = categoria;
+        this.imagen = imagen;
+        this.cantidad = 1;
+    }
+
+    public Producto(String nombre, double precio, int cantidad, String categoria, String imagen) {
+        this.nombre = nombre;
+        this.precio = Math.max(0, precio);
+        this.cantidad = Math.max(1, cantidad);
+        this.categoria = categoria;
         this.imagen = imagen;
     }
 
@@ -26,11 +38,15 @@ public class Producto {
     }
 
     public void setPrecio(double precio) {
-        this.precio = precio;
+        this.precio = Math.max(0, precio);
     }
 
     public int getCantidad() {
         return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = Math.max(1, cantidad);
     }
 
     public String getCategoria() {
@@ -53,7 +69,26 @@ public class Producto {
         return precio * cantidad;
     }
 
-    public void incrementarCant(){
+    public void incrementarCant() {
         this.cantidad++;
     }
+
+    @Override
+    public String toString() {
+        return nombre + " x" + cantidad + " = $" + getTotal();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Producto)) return false;
+        Producto producto = (Producto) o;
+        return Objects.equals(nombre, producto.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nombre);
+    }
 }
+

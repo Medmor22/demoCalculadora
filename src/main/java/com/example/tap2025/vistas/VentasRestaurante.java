@@ -1,362 +1,356 @@
 package com.example.tap2025.vistas;
 
 import com.example.tap2025.modelos.Producto;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-/*
-En esta clase se realiza: la pantalla sin necesidad del teclado, botones grandes con las categorías, al
-presionar una categoría se muestran los productos que contiene, cada producto es un botón que al ser presionado
-se agrega a la bolsa de pedidos, se muestra el pedido en una tabla con cantidad y total del producto elegido.
- */
-
 public class VentasRestaurante {
-    private Map<String, List<Producto>> categoriaProductos = new HashMap<>();
-    private List<Producto> bolsaPedidos = new ArrayList<>();
-    private VBox vBoxProductos = new VBox(10);
-    private TableView<Producto> tblVPedidos = new TableView<>();
-    private Label lblTotal = new Label("Total: $0.00");
+    private final Map<String, ObservableList<Producto>> pedidosPorMesa = new HashMap<>();
+    private final ListView<String> listViewPedido = new ListView<>();
+    private final Label lblTotal = new Label("Total: $0.0");
+    private final FlowPane mesaContainer = new FlowPane();
+    private final ComboBox<String> comboBoxCategorias = new ComboBox<>();
+    private final TilePane tilePaneProductos = new TilePane();
+    private final Map<String, List<Producto>> categoriaProductos = new HashMap<>();
+    private int mesaSeleccionada = 1;
+    private final Map<Integer, Button> botonesMesas = new HashMap<>();
 
-    public void mostrarPantallaProd(Stage stage){
+    public void mostrar(Stage stage) {
         inicializarProductos();
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(10));
 
-        //Este es el layout principal.
-        BorderPane root = new BorderPane();
-        root.setPadding(new Insets(15));
+        mostrarMesas();
 
-        //Las categorías.
-        HBox hBoxCategorias = new HBox(10);
-        hBoxCategorias.setAlignment(Pos.CENTER);
-        hBoxCategorias.setPadding(new Insets(15));
-        for (String categoria : categoriaProductos.keySet()){
-            Button btn = new Button(categoria);
-            btn.setStyle("-fx-font-size: 18px; -fx-padding: 10, 20;");
-            btn.setOnAction(event -> mostrarCategoriaProd(categoria));
-            hBoxCategorias.getChildren().add(btn);
-        }
-        root.setTop(hBoxCategorias);
+        // ComboBox de categorías táctil
+        comboBoxCategorias.getItems().addAll(categoriaProductos.keySet());
+        comboBoxCategorias.setOnAction(e -> mostrarProductos());
+        comboBoxCategorias.setStyle("-fx-font-size: 18px;");
 
-        //Productos.
-        vBoxProductos.setPadding(new Insets(10));
-        vBoxProductos.setAlignment(Pos.CENTER_LEFT);
-        root.setCenter(vBoxProductos);
+        tilePaneProductos.setHgap(10);
+        tilePaneProductos.setVgap(10);
+        tilePaneProductos.setPrefColumns(4);
 
-        //Pedidos.
-        VBox vBoxPedido = new VBox(10);
-        vBoxPedido.setPadding(new Insets(10));
-        vBoxPedido.setAlignment(Pos.TOP_CENTER);
+        VBox vboxPedido = new VBox(10);
+        vboxPedido.setPadding(new Insets(10));
+        vboxPedido.getChildren().addAll(new Label("Pedido actual"), listViewPedido, lblTotal);
 
-        tblVPedidos = new TableView<>();
-        TableColumn<Producto, String> tblColNombre = new TableColumn<>("Producto");
-        tblColNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        TableColumn<Producto, Integer> tblColCantidad = new TableColumn<>("Cantidad");
-        tblColCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
-        TableColumn<Producto, Double> tblColTotal = new TableColumn<>("Total");
-        tblColTotal.setCellValueFactory(new PropertyValueFactory<>("total"));
-        tblVPedidos.getColumns().addAll(tblColNombre, tblColCantidad, tblColTotal);
-        tblVPedidos.setPrefHeight(300);
+        Button btnGuardar = new Button("Guardar Pedido");
+        btnGuardar.setStyle("-fx-font-size: 18px; -fx-background-color: #90CAF9;");
+        btnGuardar.setOnAction(e -> guardarPedido());
 
-        Button btnFinalizar = new Button("Finalizar Pedido");
-        btnFinalizar.setStyle("-fx-font-size: 16px; -fx-padding: 10;");
-        btnFinalizar.setOnAction(event -> finalizarPedido());
-        Button btnAdministrador = new Button("Administrar productos");
-        btnAdministrador.setOnAction(e -> {
-            LoginAdministrador loginAdmin = new LoginAdministrador();
-            loginAdmin.mostrar(stage);
-        });
+        Button btnLimpiar = new Button("Limpiar Pedido");
+        btnLimpiar.setStyle("-fx-font-size: 18px; -fx-background-color: #EF9A9A;");
+        btnLimpiar.setOnAction(e -> limpiarPedido());
 
+        vboxPedido.getChildren().addAll(btnGuardar, btnLimpiar);
 
-        vBoxPedido.getChildren().addAll(new Label("Pedido Actual:"), tblVPedidos, lblTotal, btnFinalizar);
-        root.setRight(vBoxPedido);
+        HBox seccionCentral = new HBox(15, tilePaneProductos, vboxPedido);
 
-        //De esta forma se mostrará la escena.
-        Scene escena = new Scene(root, 1000, 600);
-        stage.setTitle("Sistema de ventas");
+        root.getChildren().addAll(new Label("Seleccione mesa:"), mesaContainer, new Label("Seleccione categoría:"), comboBoxCategorias, seccionCentral);
+
+        Scene escena = new Scene(root, 1000, 700);
         stage.setScene(escena);
+        stage.setTitle("Ventas Restaurante");
         stage.show();
     }
 
-    private void mostrarCategoriaProd(String categoria){
-        vBoxProductos.getChildren().clear();
-        List<Producto> productos = categoriaProductos.getOrDefault(categoria, new ArrayList<>());
-        for (Producto producto : productos){
-            Button btn = new Button(producto.getNombre() + "\n$" + producto.getPrecio());
-            btn.setPrefSize(150, 100);
-            btn.setStyle("-fx-font-size: 14px;");
-            btn.setOnAction(event -> agregarCompra(producto));
-            vBoxProductos.getChildren().add(btn);
+    private void mostrarMesas() {
+        mesaContainer.getChildren().clear();
+        mesaContainer.setHgap(10);
+        mesaContainer.setVgap(10);
+
+        for (int i = 1; i <= 20; i++) {
+            int numeroMesa = i;
+            Button botonMesa = new Button("Mesa " + numeroMesa);
+            botonMesa.setPrefSize(100, 60);
+            botonMesa.setStyle("-fx-font-size: 16px; -fx-background-color: #A5D6A7;");
+            botonMesa.setOnAction(e -> {
+                mesaSeleccionada = numeroMesa;
+                actualizarSeleccionMesas(); // <<--- Nueva función para actualizar colores
+                mostrarProductos();
+            });
+            mesaContainer.getChildren().add(botonMesa);
+            botonesMesas.put(numeroMesa, botonMesa); // <<--- Guardamos en el mapa
         }
     }
 
-    private void agregarCompra(Producto prodElegido){
-        Optional<Producto> existente = bolsaPedidos.stream().filter(producto -> producto.getNombre().equals(prodElegido.getNombre())).findFirst();
+    private void actualizarSeleccionMesas() {
+        for (Map.Entry<Integer, Button> entry : botonesMesas.entrySet()) {
+            if (entry.getKey() == mesaSeleccionada) {
+                entry.getValue().setStyle("-fx-font-size: 16px; -fx-background-color: #90CAF9;"); // Azul para la seleccionada
+            } else {
+                entry.getValue().setStyle("-fx-font-size: 16px; -fx-background-color: #A5D6A7;"); // Verde para las demás
+            }
+        }
+    }
 
-        if (existente.isPresent()){
-            existente.get().incrementarCant();
+    private void mostrarProductos() {
+        tilePaneProductos.getChildren().clear();
+        String categoria = comboBoxCategorias.getValue();
+        if (categoria == null) return;
+        List<Producto> productos = categoriaProductos.get(categoria);
+
+        for (Producto producto : productos) {
+            VBox card = new VBox(5);
+            card.setAlignment(Pos.CENTER);
+            card.setPadding(new Insets(10));
+            card.setStyle("-fx-border-color: gray; -fx-border-radius: 10; -fx-background-color: white;");
+
+            ImageView imageView;
+            try {
+                imageView = new ImageView(new Image(getClass().getResourceAsStream(producto.getImagen())));
+            } catch (Exception e) {
+                imageView = new ImageView(); // Si no se encuentra, muestra vacío
+            }
+            imageView.setFitWidth(120); // Ancho deseado
+            imageView.setFitHeight(100); // Alto deseado
+            imageView.setPreserveRatio(true); // Mantiene proporción
+            imageView.setSmooth(true); // Mejor calidad
+
+            Label nombre = new Label(producto.getNombre());
+            Label precio = new Label("$" + producto.getPrecio());
+
+            Button btnAgregar = new Button("Agregar");
+            btnAgregar.setOnAction(e -> agregarProducto(producto));
+
+            card.getChildren().addAll(imageView, nombre, precio, btnAgregar);
+            tilePaneProductos.getChildren().add(card);
+        }
+    }
+
+    private void agregarProducto(Producto producto) {
+        String mesa = "Mesa " + mesaSeleccionada;
+        ObservableList<Producto> pedido = pedidosPorMesa.get(mesa);
+        Producto existente = pedido.stream().filter(p -> p.getNombre().equals(producto.getNombre())).findFirst().orElse(null);
+        if (existente != null) {
+            existente.incrementarCant();
         } else {
-            bolsaPedidos.add(new Producto(prodElegido.getNombre(), prodElegido.getPrecio(), 1));
+            Producto nuevo = new Producto(producto.getNombre(), producto.getPrecio(), producto.getCategoria(), producto.getImagen());
+            nuevo.incrementarCant();
+            pedido.add(nuevo);
         }
-        actualizarTablaPedidos();
+        actualizarPedido();
     }
 
-    private void actualizarTablaPedidos(){
-        tblVPedidos.getItems().setAll(bolsaPedidos);
-        double total = bolsaPedidos.stream().mapToDouble(Producto::getTotal).sum();
-        lblTotal.setText(String.format("Total: $%.2f", total));
+    private void actualizarPedido() {
+        String mesa = "Mesa " + mesaSeleccionada;
+        ObservableList<Producto> pedido = pedidosPorMesa.get(mesa);
+        listViewPedido.getItems().clear();
+
+        double total = 0;
+        for (Producto p : pedido) {
+            listViewPedido.getItems().add(p.getNombre() + " x" + p.getCantidad() + " = $" + p.getTotal());
+            total += p.getTotal();
+        }
+        lblTotal.setText("Total: $" + total);
     }
 
-    private void finalizarPedido(){
-        if (bolsaPedidos.isEmpty()){
-            Alert alerta = new Alert(Alert.AlertType.WARNING, "No hay productos en el pedido", ButtonType.OK);
-            alerta.showAndWait();
-            return;
-        }
-        seleccionarMesa();
-    }
+    private void guardarPedido() {
+        String mesa = "Mesa " + mesaSeleccionada;
+        ObservableList<Producto> pedido = pedidosPorMesa.get(mesa);
+        if (pedido.isEmpty()) return;
 
-    private void seleccionarMesa(){
-        Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Seleccionar mesa");
-        dialog.setHeaderText("Asignar el pedido a la mesa");
-
-        GridPane gp = new GridPane();
-        gp.setHgap(10);
-        gp.setVgap(10);
-        gp.setPadding(new Insets(20));
-
-        ToggleGroup tgMesas = new ToggleGroup();
-        for (int i = 1; i <= 10; i++) {
-            RadioButton rb = new RadioButton("Mesa " + i);
-            rb.setToggleGroup(tgMesas);
-            gp.add(rb, (i - 1) % 5, (i - 1) / 5);
-        }
-
-        dialog.getDialogPane().setContent(gp);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        dialog.setResultConverter(button -> {
-            if (button == ButtonType.OK && tgMesas.getSelectedToggle() != null){
-                return ((RadioButton) tgMesas.getSelectedToggle()).getText();
+        try (PrintWriter writer = new PrintWriter(new FileWriter("ordenes.csv", true))) {
+            String fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            for (Producto p : pedido) {
+                writer.println(mesa + "," + p.getNombre() + "," + p.getCantidad() + "," + p.getPrecio() + "," + p.getTotal() + "," + fecha);
             }
-            return null;
-        });
-
-        Optional<String> resultado = dialog.showAndWait();
-        resultado.ifPresent(mesaSeleccionada -> {
-            String resumen = "Pedido asignado a " + mesaSeleccionada + "\n" + "Productos:\n";
-
-            for (Producto p : bolsaPedidos){
-                resumen += "- " + p.getCantidad() + " x " + p.getNombre() + "\n";
-            }
-
-            Alert confirm = new Alert(Alert.AlertType.INFORMATION, resumen, ButtonType.OK);
-            confirm.setTitle("Pedido registrado :)");
-            confirm.setHeaderText("¡Pedido registrado!");
-            confirm.showAndWait();
-
-            bolsaPedidos.clear();
-            actualizarTablaPedidos();
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        pedido.clear();
+        actualizarPedido();
     }
 
-    private void inicializarProductos(){
-        categoriaProductos.put("Entradas", Arrays.asList(
-           new Producto("Alitas 10 piezas", 129, "/images/Entradas/Alitas10.jpg"),
-           new Producto("Alitas 15 piezas", 189, "/images/Entradas/Alitas15.jpg"),
-           new Producto("Alitas 20 piezas", 249, "/images/Entradas/Alitas20.jpg"),
-           new Producto("Boneless 10 piezas", 139, "/images/Entradas/Boneless10.jpg"),
-           new Producto("Boneless 15 piezas", 199, "/images/Entradas/Boneless15.jpg"),
-           new Producto("Boneless 20 piezas", 269, "/images/Entradas/Boneless20.jpg"),
-           new Producto("Ceviche de mariscos", 293, "/images/Entradas/CevicheMariscos.jpg"),
-           new Producto("Tártara de atún", 195, "/images/Entradas/TartaraAtun.jpg"),
-           new Producto("Costillas BBQ", 279, "/images/Entradas/CostillasBqq.jpg"),
-           new Producto("Cecina con guacamole", 253, "/images/Entradas/CecinaGuacamole.jpg"),
-           new Producto("Aguachile", 243, "/images/Entradas/Aguachile.jpg"),
-           new Producto("Papas a la francesa", 60, "/images/Entradas/PapasFrancesa.jpg"),
-           new Producto("Tabla de quesos", 239, "/images/Entradas/TablaQuesos.jpg"),
-           new Producto("Queso fundido", 250, "/images/Entradas/QuesoFundido.jpg")
+    private void limpiarPedido() {
+        String mesa = "Mesa " + mesaSeleccionada;
+        pedidosPorMesa.get(mesa).clear();
+        actualizarPedido();
+    }
+
+    private void inicializarProductos() {
+        categoriaProductos.put("Entradas", List.of(
+                new Producto("Alitas", 249, "Entradas", "images/Entradas/Alitas.jpg"),
+                new Producto("Boneless", 139, "Entradas", "/images/Entradas/Boneless.jpg"),
+                new Producto("Ceviche", 293, "Entradas", "/images/Entradas/CevicheMariscos.jpg"),
+                new Producto("Tártara de atún", 195, "Entradas", "/images/Entradas/TartaraAtun.jpg"),
+                new Producto("Costillas BBQ", 279, "Entradas", "/images/Entradas/CostillasBqq.jpg"),
+                new Producto("Cecina con guacamole", 253, "Entradas", "/images/Entradas/CecinaGuacamole.jpg"),
+                new Producto("Aguachile", 243, "Entradas", "/images/Entradas/Aguachile.jpg"),
+                new Producto("Papas", 60, "Entradas", "images/Entradas/PapasFrancesa.jpg"),
+                new Producto("Tabla de quesos", 239, "Entradas", "/images/Entradas/TablaQuesos.jpg"),
+                new Producto("Queso fundido", 250, "Entradas", "/images/Entradas/QuesoFundido.jpg")
         ));
-        categoriaProductos.put("Tostadas", Arrays.asList(
-           new Producto("Tostadas de tiritas de pescado", 66, "/images/Tostadas/TiritasPescado.jpg"),
-           new Producto("Tostada de atún en tiras", 89, "/images/Tostadas/AtunTiras.jpg"),
-           new Producto("Tostada de camarón", 71, "/images/Tostadas/Camaron.jpg"),
-           new Producto("Tostada de ceviche de pescado", 71, "/images/Tostadas/CevichePescado.jpg"),
-           new Producto("Tostada de ceviche de pulpo", 79, "/images/Tostadas/CevichePulpo.jpg"),
-           new Producto("Tostada de marlin guisado", 71, "/images/Tostadas/MarlinGuisado.jpg")
+        categoriaProductos.put("Tostadas", List.of(
+                new Producto("Tostadas de tiritas de pescado", 66, "Tostadas", "/images/Tostadas/TiritasPescado.jpg"),
+                new Producto("Tostada de atún en tiras", 89, "Tostadas", "/images/Tostadas/AtunTiras.jpg"),
+                new Producto("Tostada de camarón", 71, "Tostadas", "/images/Tostadas/Camaron.jpg"),
+                new Producto("Tostada de ceviche de pescado", 71, "Tostadas", "/images/Tostadas/CevichePescado.jpg"),
+                new Producto("Tostada de ceviche de pulpo", 79, "Tostadas", "/images/Tostadas/CevichePulpo.jpg"),
+                new Producto("Tostada de marlin guisado", 71, "Tostadas", "/images/Tostadas/MarlinGuisado.jpg")
         ));
-        categoriaProductos.put("Cocteles", Arrays.asList(
-           new Producto("Camarón", 235, "/images/Costeles/Camaron.jpg"),
-           new Producto("Pulpo", 235, "/images/Costeles/Pulpo.jpg"),
-           new Producto("Camarón y Pulpo", 235, "/images/Costeles/CamaronPulpo.jpg")
+        categoriaProductos.put("Cocteles", List.of(
+                new Producto("Camarón", 235, "Cocteles", "/images/Costeles/Camaron.jpg"),
+                new Producto("Pulpo", 235, "Cocteles", "/images/Costeles/Pulpo.jpg"),
+                new Producto("Camarón y Pulpo", 235, "Cocteles", "/images/Costeles/CamaronPulpo.jpg")
         ));
-        categoriaProductos.put("Tacos", Arrays.asList(
-           new Producto("Tacos de camarón", 106, "/images/Tacos/Camaron.jpg"),
-           new Producto("Tacos de pulpo con camarón al ajillo", 109),
-           new Producto("Tacos de jicama", 129),
-           new Producto("Tacos de lechón", 151),
-           new Producto("Tacos mar y tierra", 106)
+        categoriaProductos.put("Tacos", List.of(
+                new Producto("Tacos de camarón", 106, "Tacos", "/images/Tacos/Camaron.jpg"),
+                new Producto("Tacos de pulpo con camarón", 109, "Tacos", "/images/Tacos/PulpoCamaron.jpg"),
+                new Producto("Tacos de jicama", 129, "Tacos", "/images/Tacos/Jicama.jpg"),
+                new Producto("Tacos mar y tierra", 106, "Tacos", "/images/Tacos/MarTierra.jpg")
         ));
-        categoriaProductos.put("Pastas y sopas", Arrays.asList(
-           new Producto("Fettuccine alfredo", 237),
-           new Producto("Fettuccine al burro", 149),
-           new Producto("Fettuccine cherry con camarón", 239),
-           new Producto("Fettuccine tres quesos", 237),
-           new Producto("Fettuccine oriental", 279),
-           new Producto("Sopa de fideos", 69),
-           new Producto("Sopa de lentejas", 79),
-           new Producto("Caldo de camarón", 159),
-           new Producto("Clam chowder", 109)
+        categoriaProductos.put("Pastas y Sopas", List.of(
+                new Producto("Fettuccine alfredo", 237, "Pastas y Sopas", "/images/PastasSopas/Alfredo.jpg"),
+                new Producto("Fettuccine al burro", 149, "Pastas y Sopas", "/images/PastasSopas/AlBurro.jpg"),
+                new Producto("Fettuccine cherry con camarón", 239, "Pastas y Sopas", "/images/PastasSopas/CherryCamaron.jpg"),
+                new Producto("Fettuccine tres quesos", 237, "Pastas y Sopas", "/images/PastasSopas/TresQuesos.jpg"),
+                new Producto("Fettuccine oriental", 279, "Pastas y Sopas", "/images/PastasSopas/Oriental.jpg"),
+                new Producto("Sopa de fideos", 69, "Pastas y Sopas", "/images/PastasSopas/Fideos.jpg"),
+                new Producto("Sopa de lentejas", 79, "Pastas y Sopas", "/images/PastasSopas/Lentejas.jpg"),
+                new Producto("Caldo de camarón", 159, "Pastas y Sopas", "/images/PastasSopas/Camaron.jpg"),
+                new Producto("Clam chowder", 109, "Pastas y Sopas", "/images/PastasSopas/Chowder.jpg")
         ));
-        categoriaProductos.put("Ensaladas", Arrays.asList(
-           new Producto("Ensalada de frutos rojos", 200),
-           new Producto("Ensalada de pulpo", 230),
-           new Producto("Ensalada frutal con pollo", 245),
-           new Producto("Ensalada mar y tierra", 300)
+        categoriaProductos.put("Ensaladas", List.of(
+                new Producto("Ensalada de frutos rojos", 200, "Ensaladas", "/images/Ensaladas/FrutosRojos.jpg"),
+                new Producto("Ensalada de pulpo", 230, "Ensaladas", "/images/Ensaladas/Pulpo.jpg"),
+                new Producto("Ensalada frutal con pollo", 245, "Ensaladas", "/images/Ensaladas/FrutalPollo.jpg"),
+                new Producto("Ensalada mar y tierra", 300, "Ensaladas", "/images/Ensaladas/MarTierra.jpg")
         ));
-        categoriaProductos.put("Hamburguesas", Arrays.asList(
-           new Producto("Hamburguesa de sirlon", 260),
-           new Producto("Hamburguesa de res", 260),
-           new Producto("Hamburguesa vegetariana", 240),
-           new Producto("Hamburguesa de camarón", 260)
+        categoriaProductos.put("Hamburguesas", List.of(
+                new Producto("Hamburguesa de sirlon", 260, "Hamburguesas", "/images/Hamburguesas/Sirlon.jpg"),
+                new Producto("Hamburguesa de res", 260, "Hamburguesas", "/images/Hamburguesas/Res.jpg"),
+                new Producto("Hamburguesa vegetariana", 240, "Hamburguesas", "/images/Hamburguesas/Vegetariana.jpg"),
+                new Producto("Hamburguesa de camarón", 260, "Hamburguesas", "/images/Hamburguesas/Camaron.jpg")
         ));
-        categoriaProductos.put("Menú infantil", Arrays.asList(
-           new Producto("Pechuga de pollo", 90),
-           new Producto("Sabanita de res", 90),
-           new Producto("Pizza individual", 195),
-           new Producto("Nuggets de pollo", 70)
+        categoriaProductos.put("Menu Infantil", List.of(
+                new Producto("Pechuga de pollo", 90, "Menu Infantil", "/images/MenuInfantil/PechugaPollo.jpg"),
+                new Producto("Sabanita de res", 90, "Menu Infantil", "/images/MenuInfantil/SabanitaRes.jpg"),
+                new Producto("Pizza individual", 195, "Menu Infantil", "/images/MenuInfantil/PizzaIndividual.jpg"),
+                new Producto("Nuggets de pollo", 70, "Menu Infantil", "/images/MenuInfantil/NuggetsPollo.jpg")
         ));
-        categoriaProductos.put("Pizzas", Arrays.asList(
-                new Producto("Pepperoni", 255),
-                new Producto("Carnes frías", 275),
-                new Producto("3 quesos", 255),
-                new Producto("Margarita", 255),
-                new Producto("Vegetariana", 255),
-                new Producto("Mexicana", 275),
-                new Producto("Pastor", 290),
-                new Producto("Hawaiana", 275),
-                new Producto("Champiñones con tocino", 275),
-                new Producto("Camarones con espárragos",290),
-                new Producto("Especial", 265),
-                new Producto("Arrachera", 290)
+        categoriaProductos.put("Pizzas", List.of(
+                new Producto("Pepperoni", 255, "Pizzas", "/images/Pizzas/Pepperoni.jpg"),
+                new Producto("Carnes frías", 275, "Pizzas", "/images/Pizzas/CarnesFrias.jpg"),
+                new Producto("3 quesos", 255, "Pizzas", "/images/Pizzas/TresQuesos.jpg"),
+                new Producto("Margarita", 255, "Pizzas", "/images/Pizzas/Margarita.jpg"),
+                new Producto("Vegetariana", 255, "Pizzas", "/images/Pizzas/Vegetariana.jpg"),
+                new Producto("Mexicana", 275, "Pizzas", "/images/Pizzas/Mexicana.jpg"),
+                new Producto("Pastor", 290, "Pizzas", "/images/Pizzas/Pastor.jpg"),
+                new Producto("Hawaiana", 275, "Pizzas", "/images/Pizzas/Hawaiana.jpg"),
+                new Producto("Arrachera", 290, "Pizzas", "/images/Pizzas/Arrachera.jpg")
         ));
-        categoriaProductos.put("Carnes, pescados y mariscos", Arrays.asList(
-           new Producto("Trucha almendrada", 309),
-           new Producto("Salmón a las brasas", 349),
-           new Producto("Salmón teriyaki", 369),
-           new Producto("Salmón adobado", 350),
-           new Producto("Pulpo a la diabla", 370),
-           new Producto("Arrachera", 349),
-           new Producto("Rib eye", 489),
-           new Producto("Cowboy", 479),
-           new Producto("Filete de res al perfil", 360),
-           new Producto("Churrasco martin fierro", 340),
-           new Producto("Churrasco al grill", 340),
-           new Producto("Pechuga de pollo", 275)
+        categoriaProductos.put("Carnes y Pescados", List.of(
+                new Producto("Trucha almendrada", 309, "Carnes y Pescados", "/images/CarnesPescadosMariscos/TruchaAlmendrada.jpg"),
+                new Producto("Salmón a las brasas", 349, "Carnes y Pescados", "/images/CarnesPescadosMariscos/SalmonBrasas.jpg"),
+                new Producto("Salmón teriyaki", 369, "Carnes y Pescados", "/images/CarnesPescadosMariscos/SalmonTeriyaki.jpg"),
+                new Producto("Salmón adobado", 350, "Carnes y Pescados", "/images/CarnesPescadosMariscos/SalmonAdobado.jpg"),
+                new Producto("Arrachera", 349, "Carnes y Pescados", "/images/CarnesPescadosMariscos/Arrachera.jpg"),
+                new Producto("Rib eye", 489, "Carnes y Pescados", "/images/CarnesPescadosMariscos/RibEye.jpg"),
+                new Producto("Cowboy", 479, "Carnes y Pescados", "/images/CarnesPescadosMariscos/Cowboy.jpg"),
+                new Producto("Churrasco martin fierro", 340, "Carnes y Pescados", "/images/CarnesPescadosMariscos/ChurrascoMartin.jpg"),
+                new Producto("Churrasco al grill", 340, "Carnes y Pescados", "/images/CarnesPescadosMariscos/ChurrascoGrill.jpg"),
+                new Producto("Pechuga de pollo", 275, "Carnes y Pescados", "/images/CarnesPescados/PechugaPollo.jpg")
         ));
-        categoriaProductos.put("Café y postres", Arrays.asList(
-           new Producto("Americano", 38),
-           new Producto("Expresso", 28),
-           new Producto("Cappuccino", 50),
-           new Producto("Cappuccino frappé",70),
-           new Producto("Café irlandés",150),
-           new Producto("Carajillo", 135),
-           new Producto("Canija", 135),
-           new Producto("Crepas con cajeta", 120),
-           new Producto("Helado", 110),
-           new Producto("Conejito turin", 120),
-           new Producto("Red velvet", 120),
-           new Producto("Tartaleta de plátano", 120),
-           new Producto("Tartaleta de uvas", 120),
-           new Producto("Pan de elote", 100)
+        categoriaProductos.put("Cafe y Postres", List.of(
+                new Producto("Americano", 38, "Cafe y Postres", "/images/CafePostres/Americano.jpg"),
+                new Producto("Expresso", 28, "Cafe y Postres", "/images/CafePostres/Expresso.jpg"),
+                new Producto("Cappuccino", 50, "Cafe y Postres", "/images/CafePostres/Cappuccino.jpg"),
+                new Producto("Cappuccino frappé", 70, "Cafe y Postres", "/images/CafePostres/CappuccinoFrappe.png"),
+                new Producto("Café irlandés", 150, "Cafe y Postres", "/images/CafePostres/Irlandes.jpg"),
+                new Producto("Carajillo", 135, "Cafe y Postres", "/images/CafePostres/Carajillo.jpg"),
+                new Producto("Crepas con cajeta", 120, "Cafe y Postres", "/images/CafePostres/CrepasCajeta.jpg"),
+                new Producto("Helado", 110, "Cafe y Postres", "/images/CafePostres/Helado.jpg"),
+                new Producto("Conejito turin", 120, "Cafe y Postres", "/images/CafePostres/ConejitoTurin.jpg"),
+                new Producto("Red velvet", 120, "Cafe y Postres", "/images/CafePostres/RedVelvet.jpg"),
+                new Producto("Tartaleta de plátano", 120, "Cafe y Postres", "/images/CafePostres/TartaletaPlatano.jpg"),
+                new Producto("Tartaleta de uvas", 120, "Cafe y Postres", "/images/CafePostres/TartaletaUvas.jpg")
         ));
-        categoriaProductos.put("Cocteleria", Arrays.asList(
-           new Producto("Martini", 129),
-           new Producto("Ginebra", 129),
-           new Producto("Mojito", 129),
-           new Producto("Daiquiri", 129),
-           new Producto("Perla negra", 129),
-           new Producto("Margarita", 129),
-           new Producto("Clericot", 129),
-           new Producto("Piña colada", 149)
+        categoriaProductos.put("Cocteleria", List.of(
+                new Producto("Martini", 129, "Cocteleria", "/images/Cocteleria/Martini.png"),
+                new Producto("Ginebra", 129, "Cocteleria", "/images/Cocteleria/Ginebra.jpg"),
+                new Producto("Mojito", 129, "Cocteleria", "/images/Cocteleria/Mojito.jpg"),
+                new Producto("Daiquiri", 129, "Cocteleria", "/images/Cocteleria/Daiquiri.jpg"),
+                new Producto("Perla negra", 129, "Cocteleria", "/images/Cocteleria/PerlaNegra.jpg"),
+                new Producto("Margarita", 129, "Cocteleria", "/images/Cocteleria/Margarita.jpg"),
+                new Producto("Clericot", 129, "Cocteleria", "/images/Cocteleria/Clericot.jpg"),
+                new Producto("Piña colada", 149, "Cocteleria", "/images/Cocteleria/Colada.jpg")
         ));
-        categoriaProductos.put("Cervezas", Arrays.asList(
-           new Producto("Corona", 35),
-           new Producto("Victoria", 35),
-           new Producto("Modelo especial", 35),
-           new Producto("Negra modelo", 35),
-           new Producto("Pacifico", 35),
-           new Producto("Corona light", 35),
-           new Producto("Stella", 60),
-           new Producto("Michelob ultra", 60),
-           new Producto("Corona cero", 40)
+        categoriaProductos.put("Cervezas", List.of(
+                new Producto("Corona", 35, "Cervezas", "/images/Cervezas/Corona.jpg"),
+                new Producto("Victoria", 35, "Cervezas", "/images/Cervezas/Victoria.jpg"),
+                new Producto("Modelo especial", 35, "Cervezas", "/images/Cervezas/ModeloEspecial.jpg"),
+                new Producto("Negra modelo", 35, "Cervezas", "/images/Cervezas/NegraModelo.jpg"),
+                new Producto("Pacifico", 35, "Cervezas", "/images/Cervezas/Pacifico.png"),
+                new Producto("Corona light", 35, "Cervezas", "/images/Cervezas/CoronaLight.jpg"),
+                new Producto("Stella Artois", 60, "Cervezas", "/images/Cervezas/StellaArtois.png"),
+                new Producto("Michelob ultra", 60, "Cervezas", "/images/Cervezas/MichelobUltra.jpg"),
+                new Producto("Corona cero", 40, "Cervezas", "/images/Cervezas/CoronaCero.jpg")
         ));
-        categoriaProductos.put("Bebidas", Arrays.asList(
-           new Producto("Refrescos", 37),
-           new Producto("Naranjada", 40),
-           new Producto("Limonada", 40),
-           new Producto("Agua fresca", 35)
+        categoriaProductos.put("Bebidas", List.of(
+                new Producto("Refresco", 37, "Bebidas", "images/Bebidas/Refrescos.jpg"),
+                new Producto("Limonada", 40, "Bebidas", "images/Bebidas/Limonada.png"),
+                new Producto("Naranjada", 40, "Bebidas", "/images/Bebidas/Naranjada.jpg"),
+                new Producto("Limonada", 40, "Bebidas", "/images/Bebidas/Limonada.png"),
+                new Producto("Agua fresca", 35, "Bebidas", "/images/Bebidas/AguaFresca.jpg")
         ));
-        categoriaProductos.put("Licores", Arrays.asList(
-           new Producto("Baileys", 180),
-           new Producto("Jagermeister", 210),
-           new Producto("Licor 43", 210),
-           new Producto("Amaretto Disaronno", 215),
-           new Producto("Sambuca negro", 215),
-           new Producto("Cadenas", 210),
-           new Producto("Fernet", 180)
+        categoriaProductos.put("Licores", List.of(
+                new Producto("Baileys", 180, "Licores", "/images/Licores/Baileys.jpg"),
+                new Producto("Jagermeister", 210, "Licores", "/images/Licores/Jagermeister.jpg"),
+                new Producto("Licor 43", 210, "Licores", "/images/Licores/Licor43.jpg"),
+                new Producto("Amaretto Disaronno", 215, "Licores", "/images/Licores/AmarettoDisaronno.jpg"),
+                new Producto("Sambuca negro", 215, "Licores", "/images/Licores/SambucaNegro.jpg"),
+                new Producto("Fernet", 180, "Licores", "/images/Licores/Fernet.jpg")
         ));
-        categoriaProductos.put("Ron", Arrays.asList(
-           new Producto("Havana 7 años", 195),
-           new Producto("Bacardí añejo", 350),
-           new Producto("Bacardí blanco", 350),
-           new Producto("Flor de caña 5 años", 170),
-           new Producto("Flor de caña 7 años", 185),
-           new Producto("Matusalem clásico", 170),
-           new Producto("Matusalem platino", 155),
-           new Producto("Captain morgan", 120)
+        categoriaProductos.put("Ron", List.of(
+                new Producto("Havana 7 años", 195, "Ron", "/images/Ron/Havana7.jpg"),
+                new Producto("Bacardí añejo", 350, "Ron", "/images/Ron/BacardiAnejo.jpg"),
+                new Producto("Bacardí blanco", 350, "Ron", "/images/Ron/BacardiBlanco.jpg"),
+                new Producto("Flor de caña 5 años", 170, "Ron", "/images/Ron/Flor5.jpg"),
+                new Producto("Flor de caña 7 años", 185, "Ron", "/images/Ron/Flor7.jpg"),
+                new Producto("Captain morgan", 120, "Ron", "/images/Ron/CaptainMorgan.jpg")
         ));
-        categoriaProductos.put("Tequila", Arrays.asList(
-           new Producto("Don julio 70", 275),
-           new Producto("Don julio reposado", 235),
-           new Producto("1800 cristalino", 260),
-           new Producto("1800 reposado", 200),
-           new Producto("Centenario reposado", 150),
-           new Producto("Centenario plata", 130),
-           new Producto("Tradicional reposado", 140),
-           new Producto("Tradicional plata", 140),
-           new Producto("Herradura ultra", 260),
-           new Producto("Herradura añejo", 260),
-           new Producto("Maestro dobel diamante", 260),
-           new Producto("7 leguas blanco", 175),
-           new Producto("7 leguas reposado", 200)
+        categoriaProductos.put("Tequila", List.of(
+                new Producto("Don julio 70", 275, "Tequila", "/images/Tequila/Julio70.png"),
+                new Producto("Don julio reposado", 235, "Tequila", "/images/Tequila/JulioReposado.jpg"),
+                new Producto("1800 cristalino", 260, "Tequila", "/images/Tequila/1800Cristalino.png"),
+                new Producto("Centenario reposado", 150, "Tequila", "/images/Tequila/CentenarioReposado.jpg"),
+                new Producto("Centenario plata", 130, "Tequila", "/images/Tequila/CentenarioPlata.jpg"),
+                new Producto("Tradicional reposado", 140, "Tequila", "/images/Tequila/TradicionalReposado.png"),
+                new Producto("Tradicional plata", 140, "Tequila", "/images/Tequila/TradiconalPlata.jpg"),
+                new Producto("Herradura ultra", 260, "Tequila", "/images/Tequila/HerraduraUltra.jpg"),
+                new Producto("Herradura añejo", 260, "Tequila", "/images/Tequila/HerraduraAnejo.jpg"),
+                new Producto("Maestro dobel diamante", 260, "Tequila", "/images/Tequila/MaestroDobel.jpg")
         ));
-        categoriaProductos.put("Whisky", Arrays.asList(
-           new Producto("JW black label", 260),
-           new Producto("JW red label", 170),
-           new Producto("Buchanan's master", 295),
-           new Producto("Buchanan's 12 años", 250),
-           new Producto("Old parr 12 años", 250),
-           new Producto("Jack Daniel's", 190),
-           new Producto("Jack Daniel's honey", 190),
-           new Producto("Black and white", 130)
+        categoriaProductos.put("Whisky", List.of(
+                new Producto("JW black label", 260, "Whisky", "/images/Whisky/BlackLabel.jpg"),
+                new Producto("JW red label", 170, "Whisky", "/images/Whisky/RedLabel.jpg"),
+                new Producto("Buchanan's 12 años", 250, "Whisky", "/images/Whisky/Buchanans12.jpg"),
+                new Producto("Old parr 12 años", 250, "Whisky", "/images/Whisky/OldParr.jpg"),
+                new Producto("Jack Daniel's", 190, "Whisky", "/images/Whisky/JackDaniels.jpg"),
+                new Producto("Jack Daniel's honey", 190, "Whisky", "/images/Whisky/DanielsHoney.png")
         ));
-        categoriaProductos.put("Brandy", Arrays.asList(
-           new Producto("Magno", 170),
-           new Producto("Torres 5 años", 155),
-           new Producto("Torres 10 años", 175),
-           new Producto("Torres 15 años", 230),
-           new Producto("Torres 20 años", 325),
-           new Producto("Fundador", 160),
-           new Producto("Terry centenario", 165)
+        categoriaProductos.put("Brandy", List.of(
+                new Producto("Magno", 170, "Brandy", "/images/Brandy/Magno.jpg"),
+                new Producto("Torres 10 años", 175, "Brandy", "/images/Brandy/Torres10.jpg"),
+                new Producto("Torres 20 años", 325, "Brandy", "/images/Brandy/Torres20.jpg"),
+                new Producto("Terry centenario", 165, "Brandy", "/images/Brandy/TerryCentenario.jpg")
         ));
     }
 }

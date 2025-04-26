@@ -21,7 +21,7 @@ public class HelloApplication extends Application {
     private VBox vBox;
     private MenuBar mnbPrincipal;
     private Menu menCompetencia1, menCompetencia2;
-    private MenuItem mitCalculadora, mitRestaurante, mitRompecabezas, mitHilos;
+    private MenuItem mitCalculadora, mitRestaurante, mitRompecabezas, mitHilos, mitAdmin;
     private Scene escena;
 
     void CrearUI(){
@@ -30,15 +30,17 @@ public class HelloApplication extends Application {
         mitCalculadora.setOnAction(event -> new Calculadora());
         mitRestaurante = new MenuItem("Restaurante");
         //mitRestaurante.setOnAction(event -> new VentasRestaurante());
-        mitRestaurante.setOnAction(event -> new ListaClientes());
-        menCompetencia1 = new Menu("Competencia 1");
+        mitRestaurante.setOnAction(event -> new VentasRestaurante().mostrar(new Stage()));
         mitRompecabezas = new MenuItem("Rompecabezas");
         mitRompecabezas.setOnAction(event -> new Rompecabezas());
+        menCompetencia1 = new Menu("Competencia 1");
         menCompetencia1.getItems().addAll(mitCalculadora, mitRestaurante, mitRompecabezas);
-        menCompetencia2 = new Menu("Competencia 2");
         mitHilos = new MenuItem("Celayork");
         mitHilos.setOnAction(event -> new Celayork());
-        menCompetencia2.getItems().addAll(mitHilos);
+        mitAdmin = new MenuItem("Administrar Productos");
+        mitAdmin.setOnAction(event -> new LoginAdministrador().mostrar(new Stage()));
+        menCompetencia2 = new Menu("Competencia 2");
+        menCompetencia2.getItems().addAll(mitHilos, mitAdmin);
 
         //No recibe parametros.
         mnbPrincipal = new MenuBar();
